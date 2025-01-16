@@ -4,11 +4,13 @@
 import argparse
 import os
 import re
+from multiprocessing import Pool
 import pysrt
 from moviepy import VideoFileClip, CompositeVideoClip, TextClip
 from exception import CustomException
 
 output_dir = './output'
+proc = 4
 
 
 def parse_args():
@@ -20,6 +22,8 @@ def parse_args():
                         help="The dir of subtitles")
     parser.add_argument("--output", type=str,
                         help="The dir for output videos")
+    parser.add_argument("--processes", type=int,
+                        help="The number of process")
     return parser.parse_args()
 
 
@@ -28,9 +32,9 @@ def add_subtitle_to_video(video: str, subtitle: str, output: str):
     if video == '':
         raise CustomException("video should not be empty")
     if subtitle == '':
-        raise CustomException("video should not be empty")
+        raise CustomException("subtitle should not be empty")
     if output == '':
-        raise CustomException("video should not be empty")
+        raise CustomException("output should not be empty")
 
     video_clips = VideoFileClip(video)
     subtitle_clips = parse_srt_file(subtitle)
@@ -64,7 +68,18 @@ def get_filenames_from_dir(dirname: str):
 def process(video_dir: str, subtitle_dir: str):
     videos = get_filenames_from_dir(video_dir)
     subtitles = get_filenames_from_dir(subtitle_dir)
-    # TODO 多进程
+    subtitles_list = [subtitles[i:i + proc]
+                      for i in range(0, len(subtitles), proc)]
+    # 多进程
+    pool = Pool(proc)
+    for item in subtitles_list:
+        pool.apply_async(multiprocess_subtitle, args=(
+            item, videos, video_dir, subtitle_dir, ))
+    pool.close()
+    pool.join()
+
+
+def multiprocess_subtitle(subtitles, videos, video_dir, subtitle_dir):
     for subtitle in subtitles:
         subtitle_name = get_subtitle_filename(subtitle)
         if subtitle_name == '':
@@ -109,5 +124,8 @@ if __name__ == '__main__':
 
     if args.output != '':
         output_dir = args.output
+
+    if args.processes is not None and args.processes != 0:
+        proc = args.processes
 
     add_subtitles_to_videos(args.videos_dir, args.subtitles_dir)
