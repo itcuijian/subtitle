@@ -134,8 +134,6 @@ def get_subtitle_download_link(aid, cid):
         return []
 
     wbi_resp_json = wbi_resp.json()
-    print(wbi_resp_json)
-    exit(1)
     return wbi_resp_json['data']['subtitle']['subtitles']
 
 
