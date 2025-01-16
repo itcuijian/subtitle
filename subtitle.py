@@ -73,7 +73,7 @@ def process(video_dir: str, subtitle_dir: str):
             if video.find(subtitle_name) != -1:
                 add_subtitle_to_video(
                     video_dir + video, subtitle_dir + subtitle,
-                    output_dir + video)
+                    output_dir + '/' + video)
 
 
 def get_subtitle_filename(subtitle_filename: str):
