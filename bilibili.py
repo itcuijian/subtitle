@@ -3,7 +3,7 @@
 
 import os
 import time
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse
 import json
 import re
 import argparse
@@ -41,6 +41,8 @@ def parse_args():
                         help="The dir of videos to add subtitle")
     parser.add_argument("--cookies", type=str,
                         help="The cookies file path", default="./cookies.txt")
+    parser.add_argument("--first", type=int,
+                        help="The first index", default=0)
     return parser.parse_args()
 
 
@@ -64,7 +66,7 @@ def get_bvid_from_path(path: str):
     return ""
 
 
-def download_subtitle_title(url: str):
+def download_subtitle_title(url: str, index: int):
     infos = get_info_from_url(url)
     bvid = infos['bvid']
 
@@ -85,8 +87,13 @@ def download_subtitle_title(url: str):
     sub_dir = mkdir_subtitle_dir(bvid)
 
     cid_json = json.loads(cid_back.content)
+    items = cid_json['data']
+
+    if index != 0:
+        items = items[index:]
+
     # TODO 多进程
-    for item in cid_json['data']:
+    for item in items:
         cid = item['cid']
         title = sub_dir + '/' + item['part'] + '.srt'
         links = get_subtitle_download_link(aid, cid)
@@ -127,6 +134,8 @@ def get_subtitle_download_link(aid, cid):
         return []
 
     wbi_resp_json = wbi_resp.json()
+    print(wbi_resp_json)
+    exit(1)
     return wbi_resp_json['data']['subtitle']['subtitles']
 
 
@@ -147,9 +156,9 @@ if __name__ == '__main__':
     cookie_content = cookie.get_cookie_from_filename(args.cookies)
     headers['cookie'] = cookie_content
 
-    download_subtitle_title(args.url)
+    download_subtitle_title(args.url, args.first)
 
-    if args.dir != '':
+    if args.dir is not None:
         print("dir not null")
         info = get_info_from_url(args.url)
         sd = mkdir_subtitle_dir(info['bvid'])
