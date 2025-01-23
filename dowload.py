@@ -9,7 +9,6 @@ import re
 import argparse
 import requests
 import srt
-import subtitle
 import cookie
 from exception import CustomException
 
@@ -37,10 +36,9 @@ def parse_args():
     """Get command argvs"""
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", type=str, help="The url of Bilibili video")
-    parser.add_argument("--dir", type=str,
-                        help="The dir of videos to add subtitle")
     parser.add_argument("--cookies", type=str,
-                        help="The cookies file path", default="./cookies.txt")
+                        help="The cookies file path, default is './cookies.txt'",
+                        default="./cookies.txt")
     parser.add_argument("--first", type=int,
                         help="The first index", default=0)
     return parser.parse_args()
@@ -90,7 +88,7 @@ def download_subtitle_title(url: str, index: int):
     items = cid_json['data']
 
     if index != 0:
-        items = items[index:]
+        items = items[index-1:]
 
     # TODO 多进程
     for item in items:
@@ -155,9 +153,3 @@ if __name__ == '__main__':
     headers['cookie'] = cookie_content
 
     download_subtitle_title(args.url, args.first)
-
-    if args.dir is not None:
-        print("dir not null")
-        info = get_info_from_url(args.url)
-        sd = mkdir_subtitle_dir(info['bvid'])
-        subtitle.add_subtitles_to_videos(args.dir, sd)
