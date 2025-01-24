@@ -83,7 +83,7 @@ def gen_color_clip(width: float, height: float, start: float, duration: float):
                      color=(255, 255, 255), duration=duration)
     clip = clip.with_start(start)
     clip = clip.with_position(("center", 0.9), relative=True)
-    clip = clip.with_opacity(.6)
+    clip = clip.with_opacity(.2)
     return clip
 
 
