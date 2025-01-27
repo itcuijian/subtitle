@@ -41,10 +41,11 @@ def add_subtitle_to_video(video: str, subtitle: str, output: str):
     color_clip = gen_color_clips_by_text_clips(subtitle_clips)
     final_clips = CompositeVideoClip(
         [video_clips, *color_clip, *subtitle_clips])
-    final_clips.write_videofile(output, codec='libx264',
-                                audio_codec='aac',
-                                temp_audiofile='temp-audio.m4a',
-                                remove_temp=True)
+    final_clips.write_videofile(output,
+                                fps=24,
+                                codec="libx264",
+                                audio_codec="aac",
+                                )
 
 
 def parse_srt_file(file: str):
