@@ -40,8 +40,11 @@ def add_subtitle_to_video(video: str, subtitle: str, output: str):
     subtitle_clips = parse_srt_file(subtitle)
     color_clip = gen_color_clips_by_text_clips(subtitle_clips)
     final_clips = CompositeVideoClip(
-        [video_clips, *subtitle_clips, *color_clip])
-    final_clips.write_videofile(output)
+        [video_clips, *color_clip, *subtitle_clips])
+    final_clips.write_videofile(output, codec='libx264',
+                                audio_codec='aac',
+                                temp_audiofile='temp-audio.m4a',
+                                remove_temp=True)
 
 
 def parse_srt_file(file: str):
@@ -80,10 +83,10 @@ def gen_color_clips_by_text_clips(text_clips):
 def gen_color_clip(width: float, height: float, start: float, duration: float):
     """generate color clip"""
     clip = ColorClip(size=(width + 2, height + 2),
-                     color=(255, 255, 255), duration=duration)
+                     color=(102, 204, 204), duration=duration)
     clip = clip.with_start(start)
     clip = clip.with_position(("center", 0.9), relative=True)
-    clip = clip.with_opacity(.2)
+    clip = clip.with_opacity(.5)
     return clip
 
 
